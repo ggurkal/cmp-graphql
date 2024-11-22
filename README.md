@@ -45,7 +45,10 @@ yarn && yarn codegen
 ### Setup cmp-graphql for your project with
 ```lua
 require('cmp-graphql').setup({
-  schema_path = 'graphql.schema.json', -- Path to generated json schema file in project
+  schema_paths = {
+    'src/graphql.schema.json', -- Path to generated json schema file in project A
+    'apps/test/graphql/schema.json', -- Path to generated json schema file in project B
+  },
 })
 ```
 
