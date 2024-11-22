@@ -6,8 +6,18 @@ local source = {}
 function source.new(config)
   local self = setmetatable({}, { __index = source })
   self._path_patterns = config.path or { '[.]jsx?$', '[.]tsx?$', '[.]gql$' }
-  self._schema_path = config.schema_path
   self._schema = nil
+  self._file_path = nil
+
+  for _, p in pairs(config.schema_paths) do
+    local file_path = vim.loop.cwd() .. '/' .. p
+
+    if vim.loop.fs_stat(file_path) then
+      self._file_path = file_path
+      break
+    end
+  end
+
   return self
 end
 
@@ -39,10 +49,8 @@ end
 function source._get_schema(self)
   if self._schema ~= nil then return self._schema end
   
-  local file_path = vim.loop.cwd() .. '/' .. self._schema_path
-
-  local fd = assert(vim.loop.fs_open(file_path, 'r', 438))
-  local stat = assert(vim.loop.fs_stat(file_path))
+  local fd = assert(vim.loop.fs_open(self._file_path, 'r', 438))
+  local stat = assert(vim.loop.fs_stat(self._file_path))
   local contents = assert(vim.loop.fs_read(fd, stat.size, 0))
   local schema = vim.json.decode(contents).__schema
   self._schema = schema
